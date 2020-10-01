@@ -30,7 +30,10 @@ class ChessBoard():
             ['xx', 'xx', 'xx', 'rR', 'rN', 'rB', 'rQ', 'rK', 'rB', 'rN', 'rR', 'xx', 'xx', 'xx']])
 
         self.redToMove = True
-        self.moveLog = []
+
+        self.log_move = []
+        self.log_before = []
+        self.log_after = []
 
         self.dimension = 14
         self.sq_size = 50
@@ -92,12 +95,46 @@ class ChessBoard():
     def move_piece(self, player_clicks):
         loc_before = player_clicks[0]
         loc_after = player_clicks[1]
-        piece_before = self.board[loc_before]
-        self.board[loc_before] = '--'
-        self.board[loc_after] = piece_before
+
+        if self.is_valid():
+            piece_before = self.board[loc_before]
+            piece_after = self.board[loc_after]
+
+            self.board[loc_before] = '--'
+            self.board[loc_after] = piece_before
+
+            self.log_move.append(player_clicks)
+            self.log_before.append(piece_before)
+            self.log_after.append(piece_after)
+
+    def move_undo(self):
+        '''
+        Undos moves
+        Doesn't work for multiple undo
+        '''
+
+        if self.log_move:
+            player_clicks = self.log_move.pop()
+            piece_before = self.log_before.pop()
+            piece_after = self.log_after.pop()
+            
+            loc_before = player_clicks[0]
+            loc_after = player_clicks[1]
+
+            self.board[loc_before] = piece_before
+            self.board[loc_after] = piece_after
+
+
+    def is_valid(self):
+        '''
+        Check if the move is valid
+        '''
+        return True
 
 
 if __name__ == "__main__":
     chess_board = ChessBoard()
     main.run_game(chess_board)
     pygame.display.quit()
+    for move in chess_board.log_move:
+        print(move)

@@ -6,7 +6,7 @@ Date: Sept 29 2019
 ## Part 0: Importing
 import numpy as np
 import pygame as pygame
-from board import ChessBoard
+import board
 
 ## Running Game
 def run_game(chess_board):
@@ -23,6 +23,8 @@ def run_game(chess_board):
                 if e.type == pygame.QUIT:
                     # pygame.display.quit()
                     running = False
+                
+                # Mouse events
                 elif e.type == pygame.MOUSEBUTTONDOWN:
                     location = pygame.mouse.get_pos() # (x, y) location of mouse
                     col = location[0]//chess_board.sq_size
@@ -46,6 +48,14 @@ def run_game(chess_board):
                         sq_selected = ()
                         player_clicks = []
 
+                # Keyboard events
+                elif e.type == pygame.KEYDOWN:
+
+                    # Undo when z is pressed
+                    if e.key == pygame.K_z:
+                        chess_board.move_undo()
+
+
             chess_board.draw_board(screen)
             chess_board.draw_pieces(screen)
             clock.tick(chess_board.max_fps)
@@ -53,6 +63,6 @@ def run_game(chess_board):
 
 
 if __name__ == "__main__":
-    chess_board = ChessBoard()
+    chess_board = board.ChessBoard()
     run_game(chess_board)
     pygame.display.quit()
