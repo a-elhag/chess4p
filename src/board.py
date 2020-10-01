@@ -141,7 +141,21 @@ class ChessBoard():
         '''
         piece_before = self.board[loc_before]
         piece_after = self.board[loc_after]
+        piece_id = piece_before[1]
 
+        flag_turn = self.is_valid_turn(piece_before)
+
+        if piece_id == 'P':
+            flag_move = self.is_valid_pawn()
+        else:
+            flag_move = False
+
+        print(flag_turn, flag_move)
+
+        return flag_turn and flag_move
+
+
+    def is_valid_turn(self, piece_before):
         turn_now = self.turn_sequence[0]
         turn_made = piece_before[0]
 
@@ -149,6 +163,10 @@ class ChessBoard():
             return True
         else:
             return False
+
+
+    def is_valid_pawn(self):
+        return True
 
 
 if __name__ == "__main__":
