@@ -30,6 +30,12 @@ class ChessBoard():
             ['xx', 'xx', 'xx', 'rR', 'rN', 'rB', 'rQ', 'rK', 'rB', 'rN', 'rR', 'xx', 'xx', 'xx']])
 
         self.turn_sequence = ['r', 'b', 'y', 'g']
+        self.turn_direction = {
+            "r": [-1, 0],
+            "b": [0, 1],
+            "y": [1, 0],
+            "g": [0, -1]
+        }
 
         self.log_move = []
         self.log_before = []
@@ -99,10 +105,11 @@ class ChessBoard():
 
 
     def move_piece(self, player_clicks):
-        loc_before = player_clicks[0]
-        loc_after = player_clicks[1]
+        self.player_clicks = player_clicks
+        loc_before = self.player_clicks[0]
+        loc_after = self.player_clicks[1]
 
-        if self.is_valid(loc_before, loc_after):
+        if self.is_valid():
             piece_before = self.board[loc_before]
             piece_after = self.board[loc_after]
 
@@ -111,7 +118,7 @@ class ChessBoard():
 
             self.turn_next()
 
-            self.log_move.append(player_clicks)
+            self.log_move.append(self.player_clicks)
             self.log_before.append(piece_before)
             self.log_after.append(piece_after)
 
@@ -122,23 +129,26 @@ class ChessBoard():
         '''
 
         if self.log_move:
-            player_clicks = self.log_move.pop()
+            player_clicks_now = self.log_move.pop()
             piece_before = self.log_before.pop()
             piece_after = self.log_after.pop()
             self.log_turn_sequence.pop()
             self.turn_sequence = self.log_turn_sequence[-1]
             
-            loc_before = player_clicks[0]
-            loc_after = player_clicks[1]
+            loc_before = player_clicks_now[0]
+            loc_after = player_clicks_now[1]
 
             self.board[loc_before] = piece_before
             self.board[loc_after] = piece_after
 
 
-    def is_valid(self, loc_before, loc_after):
+    def is_valid(self):
         '''
         Check if the move is valid
         '''
+        loc_before = self.player_clicks[0]
+        loc_after = self.player_clicks[1]
+
         piece_before = self.board[loc_before]
         piece_after = self.board[loc_after]
         piece_id = piece_before[1]
@@ -150,9 +160,9 @@ class ChessBoard():
         else:
             flag_move = False
 
-        print(flag_turn, flag_move)
+        flag_valid = (flag_turn and flag_move)
 
-        return flag_turn and flag_move
+        return flag_valid
 
 
     def is_valid_turn(self, piece_before):
@@ -166,11 +176,40 @@ class ChessBoard():
 
 
     def is_valid_pawn(self):
-        return True
+        loc_before = self.player_clicks[0]
+        loc_after = self.player_clicks[1]
+        turn_now = self.turn_sequence[0]
+
+        # jump is in [x, y]
+        jump = [loc_after[0] - loc_before[0],
+                loc_after[1] - loc_before[1]]
+
+        # Positive if we are allowed to make the move
+        direction = 0 
+        for _ in range(2):
+            direction = direction + jump[_]*self.turn_direction[turn_now][_]
+
+        if direction > 0:
+            flag_direction = True
+        else:
+            flag_direction = False
+
+        # Basic forward movement of the pawn
+        flag_rook = False
+        for axis in jump:
+            if axis == 0:
+                flag_rook = True
+
+        print(loc_before)
+
+        flag_pawn = (flag_direction and flag_rook)
+        return flag_pawn
 
 
 if __name__ == "__main__":
     chess_board = ChessBoard()
     main.run_game(chess_board)
     pygame.display.quit()
+
+
 
