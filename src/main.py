@@ -86,6 +86,15 @@ class ChessBoard():
                                 p.Rect(col*self.sq_size, row*self.sq_size, self.sq_size, self.sq_size))
 
 
+class Move():
+    def __init__(self, start_sq, end_sq, board):
+        self.start_row = start_sq[0]
+        self.start_col = start_sq[1]
+        self.end_row = end_sq[0]
+        self.end_col = end_sq[1]
+        self.piece_moved = board[self.start_row, self.start_col]
+        self.piece_captured = board[self.end_row, self.end_col]
+
 def main():
     A = ChessBoard()
     A.load_images()
@@ -93,11 +102,31 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color(A.bg))
     running = True
+    sq_selected = () # no square is selected, keep track of last click
+    player_clicks = [] # keep track of the player clicks (two tuples [(6, 4), (4, 4)])
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
                 # p.display.quit()
                 running = False
+            elif e.type == p.MOUSEBUTTONDOWN:
+                location = p.mouse.get_pos() # (x, y) location of mouse
+                col = location[0]//A.sq_size
+                row = location[1]//A.sq_size
+
+                # the user clicked the same square twice (undo)
+                if sq_selected == (row, col): 
+                    sq_selected = () # deselect
+                    player_clicks = []
+
+                # append for first and second clicks
+                else:
+                    sq_selected = (row, col)
+                    player_clicks.append(sq_selected) 
+
+                # after the users second click
+                if len(player_clicks) == 2: 
+                    pass
 
         A.draw_board(screen)
         A.draw_pieces(screen)
