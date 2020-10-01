@@ -29,11 +29,13 @@ class ChessBoard():
             ['xx', 'xx', 'xx', 'rP', 'rP', 'rP', 'rP', 'rP', 'rP', 'rP', 'rP', 'xx', 'xx', 'xx'],
             ['xx', 'xx', 'xx', 'rR', 'rN', 'rB', 'rQ', 'rK', 'rB', 'rN', 'rR', 'xx', 'xx', 'xx']])
 
-        self.redToMove = True
+        self.turn_sequence = ['r', 'b', 'y', 'g']
 
         self.log_move = []
         self.log_before = []
         self.log_after = []
+        self.log_turn_sequence = []
+        self.log_turn_sequence.append(self.turn_sequence)
 
         self.dimension = 14
         self.sq_size = 50
@@ -91,17 +93,23 @@ class ChessBoard():
         self.draw_board(screen)
         self.draw_pieces(screen)
 
+    def turn_next(self):
+        self.turn_sequence = self.turn_sequence[1:] + self.turn_sequence[:1]
+        self.log_turn_sequence.append(self.turn_sequence)
+
 
     def move_piece(self, player_clicks):
         loc_before = player_clicks[0]
         loc_after = player_clicks[1]
 
-        if self.is_valid():
+        if self.is_valid(loc_before, loc_after):
             piece_before = self.board[loc_before]
             piece_after = self.board[loc_after]
 
             self.board[loc_before] = '--'
             self.board[loc_after] = piece_before
+
+            self.turn_next()
 
             self.log_move.append(player_clicks)
             self.log_before.append(piece_before)
@@ -117,6 +125,8 @@ class ChessBoard():
             player_clicks = self.log_move.pop()
             piece_before = self.log_before.pop()
             piece_after = self.log_after.pop()
+            self.log_turn_sequence.pop()
+            self.turn_sequence = self.log_turn_sequence[-1]
             
             loc_before = player_clicks[0]
             loc_after = player_clicks[1]
@@ -125,16 +135,24 @@ class ChessBoard():
             self.board[loc_after] = piece_after
 
 
-    def is_valid(self):
+    def is_valid(self, loc_before, loc_after):
         '''
         Check if the move is valid
         '''
-        return True
+        piece_before = self.board[loc_before]
+        piece_after = self.board[loc_after]
+
+        turn_now = self.turn_sequence[0]
+        turn_made = piece_before[0]
+
+        if turn_now == turn_made:
+            return True
+        else:
+            return False
 
 
 if __name__ == "__main__":
     chess_board = ChessBoard()
     main.run_game(chess_board)
     pygame.display.quit()
-    for move in chess_board.log_move:
-        print(move)
+
