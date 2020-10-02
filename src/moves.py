@@ -34,6 +34,8 @@ class Moves(board.ChessBoard):
         self.get_moves_rook()
         self.get_moves_bishop()
         self.get_moves_queen()
+        self.get_moves_king()
+        self.get_moves_knight()
 
 
     def get_team(self):
@@ -243,7 +245,78 @@ class Moves(board.ChessBoard):
                                 if self.opponent[loc_after[0], loc_after[1]]:
                                     flag_allowed = False
 
-    
+    def get_moves_king(self):
+        idx_king = self.turn_sequence[0] + 'K'
+        board_king = self.board_turn = np.core.defchararray.find(
+            self.board, idx_king)
+        board_king = (board_king == 0)
+
+        for row in range(self.dimension):
+            for col in range(self.dimension):
+                loc_before = [row, col]
+                idx_before = np.array(loc_before)
+                idx_movement_king = np.array([
+                    [-1, 0], #up
+                    [1, 0], #down
+                    [0, 1], # right
+                    [0, -1], #left
+                    [-1, -1], # up - left diag
+                    [-1, +1], # up - right diag
+                    [+1, +1], # down - right diag
+                    [+1, -1], # down - left diag
+                ])
+
+                if board_king[row, col]:
+                    for movement in range(8):
+                        idx_after = np.copy(loc_before)
+                        idx_after = (idx_after +
+                                     idx_movement_king[movement, :])
+                        loc_after = [idx_after[0], idx_after[1]]
+
+                        if not ((0 <= idx_after[0] < self.dimension) and
+                                (0 <= idx_after[1] < self.dimension)):
+                            continue
+
+                        if not self.team[loc_after[0], loc_after[1]]:
+                            self.moves_ava.append([loc_before, loc_after])
+
+    def get_moves_knight(self):
+        idx_knights = self.turn_sequence[0] + 'N'
+        board_knights = self.board_turn = np.core.defchararray.find(
+            self.board, idx_knights)
+        board_knights = (board_knights == 0)
+
+        for row in range(self.dimension):
+            for col in range(self.dimension):
+                loc_before = [row, col]
+                idx_before = np.array(loc_before)
+                idx_movement_knights = np.array([
+                    [-2, -1],
+                    [-2, +1],
+                    [+2, -1],
+                    [+2, +1],
+                    [-1, +2],
+                    [+1, +2],
+                    [-1, -2],
+                    [+1, -2],
+                ])
+
+                if board_knights[row, col]:
+                    for movement in range(8):
+                        idx_after = np.copy(loc_before)
+                        idx_after = (idx_after +
+                                     idx_movement_knights[movement, :])
+                        loc_after = [idx_after[0], idx_after[1]]
+
+                        if not ((0 <= idx_after[0] < self.dimension) and
+                                (0 <= idx_after[1] < self.dimension)):
+                            continue
+
+                        if not self.team[loc_after[0], loc_after[1]]:
+                            self.moves_ava.append([loc_before, loc_after])
+
+
+
 
     def turn_next(self):
         self.turn_sequence = self.turn_sequence[1:] + self.turn_sequence[:1]
