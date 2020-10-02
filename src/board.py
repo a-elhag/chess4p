@@ -55,6 +55,12 @@ class ChessBoard():
         self.max_fps = 15
         self.bg = "#3C3A36"
 
+        self.highlight_color = {
+            "r": 'Red',
+            "b": 'Blue',
+            "y": 'Yellow',
+            "g": 'Green'
+        }
         self.load_images()
 
 
@@ -93,6 +99,25 @@ class ChessBoard():
                         pygame.Rect((col*self.sq_size, row*self.sq_size, self.sq_size, self.sq_size)))
 
 
+    def draw_highlights(self, screen, sq_selected, turn, moves_ava):
+
+        if sq_selected != ():
+            row, col = sq_selected
+            if self.board[row, col][0] == turn:
+                # Highlight selected square
+                s = pygame.Surface((self.sq_size, self.sq_size))
+                s.set_alpha(90) # 0 transparent; 255 opaque
+                s.fill(pygame.Color(self.highlight_color[turn]))
+                screen.blit(s, (col*self.sq_size, row*self.sq_size))
+
+                s.set_alpha(40) # 0 transparent; 255 opaque
+                s.fill(pygame.Color(self.highlight_color[turn]))
+                for move in moves_ava:
+                    if move[0] == list(sq_selected):
+                        screen.blit(s, (move[1][1]*self.sq_size,
+                                        move[1][0]*self.sq_size))
+
+
     def draw_pieces(self, screen):
         for row in range(self.dimension):
             for col in range(self.dimension):
@@ -102,8 +127,9 @@ class ChessBoard():
                     screen.blit(self.images[piece],
                                 pygame.Rect(col*self.sq_size, row*self.sq_size, self.sq_size, self.sq_size))
 
-    def draw_all(self, screen):
+    def draw_all(self, screen, sq_selected, turn, moves_ava):
         self.draw_board(screen)
+        self.draw_highlights(screen, sq_selected, turn, moves_ava)
         self.draw_pieces(screen)
 
 

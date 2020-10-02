@@ -15,10 +15,15 @@ def run_game(chess_board):
     screen.fill(pygame.Color(chess_board.bg))
 
     running = True
+    new_turn = True
     sq_selected = () # no square is selected, keep track of last click
     player_clicks = [] # keep track of the player clicks (two tuples [(6, 4), (4, 4)])
 
     while running:
+            if new_turn:
+                chess_board.get_moves()
+                new_turn = False
+
             for e in pygame.event.get():
                 if e.type == pygame.QUIT:
                     # pygame.display.quit()
@@ -40,11 +45,13 @@ def run_game(chess_board):
                     # append for first and second clicks
                     else:
                         sq_selected = (row, col)
+                        print(sq_selected)
                         player_clicks.append(sq_selected) 
 
                     # after the users second click
                     if len(player_clicks) == 2: 
-                        chess_board.move_piece(player_clicks)
+                        # Equals true, if new move is played
+                        new_turn = chess_board.move_piece(player_clicks) 
                         sq_selected = ()
                         player_clicks = []
 
@@ -59,8 +66,9 @@ def run_game(chess_board):
                         chess_board.print_moves()
 
 
-            chess_board.draw_board(screen)
-            chess_board.draw_pieces(screen)
+            chess_board.draw_all(screen, sq_selected,
+                                chess_board.turn_sequence[0],
+                                chess_board.moves_ava)
             clock.tick(chess_board.max_fps)
             pygame.display.flip()
 
@@ -69,3 +77,4 @@ if __name__ == "__main__":
     chess_board = moves.Moves()
     run_game(chess_board)
     pygame.display.quit()
+

@@ -25,6 +25,26 @@ class Moves(board.ChessBoard):
         self.log_turn_sequence = []
         self.log_turn_sequence.append(self.turn_sequence)
 
+    def move_piece(self, player_clicks):
+        self.player_clicks = player_clicks
+        loc_before = self.player_clicks[0]
+        loc_after = self.player_clicks[1]
+
+        if self.is_valid():
+            piece_before = self.board[loc_before]
+            piece_after = self.board[loc_after]
+
+            self.board[loc_before] = '--'
+            self.board[loc_after] = piece_before
+
+            self.turn_next()
+
+            self.log_move.append(self.player_clicks)
+            self.log_before.append(piece_before)
+            self.log_after.append(piece_after)
+
+            return True
+
 
     def get_moves(self):
         self.moves_ava = []
@@ -323,26 +343,7 @@ class Moves(board.ChessBoard):
         self.log_turn_sequence.append(self.turn_sequence)
 
 
-    def move_piece(self, player_clicks):
-        self.player_clicks = player_clicks
-        loc_before = self.player_clicks[0]
-        loc_after = self.player_clicks[1]
-
-        self.get_moves()
-
-        if self.is_valid():
-            piece_before = self.board[loc_before]
-            piece_after = self.board[loc_after]
-
-            self.board[loc_before] = '--'
-            self.board[loc_after] = piece_before
-
-            self.turn_next()
-
-            self.log_move.append(self.player_clicks)
-            self.log_before.append(piece_before)
-            self.log_after.append(piece_after)
-
+    
     def move_undo(self):
         '''
         Undos moves
