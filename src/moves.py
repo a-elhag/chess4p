@@ -133,28 +133,37 @@ class Moves(board.ChessBoard):
             for col in range(self.dimension):
                 loc_before = [row, col]
                 idx_before = np.array(loc_before)
-                idx_after = np.copy(loc_before)
+                idx_movement_rook = np.array([
+                    [-1, 0], #up
+                    [1, 0], #down
+                    [0, 1], # right
+                    [0, -1], #left
+                ])
 
                 if board_rooks[row, col]:
-                    flag_up = True
-                    idx_up = np.array([-1, 0])
-                    while(flag_up):
-                        idx_after = idx_after + idx_up
-                        loc_after = [idx_after[0], idx_after[1]]
+                    for movement in range(4):
+                        idx_after = np.copy(loc_before)
+                        flag_allowed = True
+                        while(flag_allowed):
+                            idx_after = (idx_after +
+                                         idx_movement_rook[movement, :])
+                            loc_after = [idx_after[0], idx_after[1]]
 
-                        if not (0 < idx_after[0] < self.dimension):
-                            flag_up = False
-                            break
+                            if not ((0 <= idx_after[0] < self.dimension) and
+                                    (0 <= idx_after[1] < self.dimension)):
+                                flag_allowed = False
+                                break
 
-                        if self.team[loc_after[0], loc_after[1]]:
-                            flag_up = False
-                        else:
-                            self.moves_ava.append([loc_before, loc_after])
-                            if self.opponent[loc_after[0], loc_after[1]]:
-                                flag_up = False
-
+                            if self.team[loc_after[0], loc_after[1]]:
+                                flag_allowed = False
+                            else:
+                                self.moves_ava.append([loc_before, loc_after])
+                                if self.opponent[loc_after[0], loc_after[1]]:
+                                    flag_allowed = False
+                        
 
     
+
     def turn_next(self):
         self.turn_sequence = self.turn_sequence[1:] + self.turn_sequence[:1]
         self.log_turn_sequence.append(self.turn_sequence)
