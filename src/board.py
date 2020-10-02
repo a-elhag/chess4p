@@ -14,18 +14,18 @@ class ChessBoard():
         self.board = np.array([
             ['xx', 'xx', 'xx', 'yR', 'yN', 'yB', 'yQ', 'yK', 'yB', 'yN', 'yR', 'xx', 'xx', 'xx'],
             ['xx', 'xx', 'xx', 'yP', 'yP', 'yP', 'yP', 'yP', 'yP', 'yP', 'yP', 'xx', 'xx', 'xx'],
-            ['xx', 'xx', 'xx', '--', '--', '--', '--', '--', '--', '--', '--', 'xx', 'xx', 'xx'],
+            ['xx', 'xx', 'xx', 'yP', '--', '--', '--', '--', '--', '--', 'yP', 'xx', 'xx', 'xx'],
 
-            ['bR', 'bP', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', 'gP', 'gR'],
+            ['bR', 'bP', 'bP', '--', '--', '--', '--', '--', '--', '--', '--', 'gP', 'gP', 'gR'],
             ['bN', 'bP', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', 'gP', 'gN'],
             ['bB', 'bP', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', 'gP', 'gB'],
             ['bK', 'bP', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', 'gP', 'gQ'],
             ['bQ', 'bP', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', 'gP', 'gK'],
             ['bB', 'bP', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', 'gP', 'gB'],
             ['bN', 'bP', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', 'gP', 'gN'],
-            ['bR', 'bP', '--', '--', '--', '--', '--', '--', '--', '--', '--', '--', 'gP', 'gR'],
+            ['bR', 'bP', 'bP', '--', '--', '--', '--', '--', '--', '--', '--', 'gP', 'gP', 'gR'],
 
-            ['xx', 'xx', 'xx', '--', '--', '--', '--', '--', '--', '--', '--', 'xx', 'xx', 'xx'],
+            ['xx', 'xx', 'xx', 'rP', '--', '--', '--', '--', '--', '--', 'rP', 'xx', 'xx', 'xx'],
             ['xx', 'xx', 'xx', 'rP', 'rP', 'rP', 'rP', 'rP', 'rP', 'rP', 'rP', 'xx', 'xx', 'xx'],
             ['xx', 'xx', 'xx', 'rR', 'rN', 'rB', 'rQ', 'rK', 'rB', 'rN', 'rR', 'xx', 'xx', 'xx']])
 
@@ -187,11 +187,14 @@ class ChessBoard():
 
         # Available moves
         self.moves_ava = []
+        self.get_opponents()
 
         for row in range(self.dimension):
             for col in range(self.dimension):
+                loc_before = [row, col]
+
+                # Normal Movements
                 if A[row, col]:
-                    loc_before = [row, col]
                     idx_next = np.array([row, col])
                     idx_next = idx_next + idx_add
                     if self.board[idx_next[0], idx_next[1]] == '--':
@@ -220,6 +223,47 @@ class ChessBoard():
                             loc_after = [idx_next[0], idx_next[1]]
                             self.moves_ava.append([loc_before, loc_after])
 
+                # See if we can capture an opponent
+                if A[row, col]:
+                    idx_base = np.array([row, col]) + idx_add
+                    idx_left = np.copy(idx_base)
+                    idx_right = np.copy(idx_base)
+
+                    for _ in range(2):
+                        if idx_add[_] == 0:
+                            idx_left[_] = idx_left[_] - 1
+                            idx_right[_] = idx_right[_] + 1
+
+                            piece_left = self.opponent[idx_left[0], idx_left[1]]
+                            piece_right = self.opponent[idx_right[0], idx_right[1]]
+
+                            if piece_left:
+                                loc_after = [idx_left[0], idx_left[1]]
+                                self.moves_ava.append([loc_before, loc_after])
+
+                            if piece_right:
+                                loc_after = [idx_right[0], idx_right[1]]
+                                self.moves_ava.append([loc_before, loc_after])
+
+                   
+
+
+    def get_opponents(self):
+        opponent1 = self.board_turn = np.core.defchararray.find(
+                    self.board, self.turn_sequence[1])
+        opponent1 = (opponent1 == 0)
+
+        opponent2 = self.board_turn = np.core.defchararray.find(
+            self.board, self.turn_sequence[2])
+        opponent2 = (opponent2 == 0)
+
+        opponent3 = self.board_turn = np.core.defchararray.find(
+            self.board, self.turn_sequence[3])
+        opponent3 = (opponent3 == 0)
+
+        self.opponent = np.logical_or(opponent1, opponent2)
+        self.opponent = np.logical_or(self.opponent, opponent3)
+
 
     def print_moves(self):
         self.get_pawn_moves()
@@ -235,4 +279,5 @@ if __name__ == "__main__":
     chess_board.turn_direction
     main.run_game(chess_board)
     pygame.display.quit()
+
 
