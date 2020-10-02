@@ -6,7 +6,7 @@ Date: Sept 29 2019
 ## Part 0: Importing
 import numpy as np
 import pygame as pygame
-import board
+import moves
 
 ## Running Game
 def run_game(chess_board):
@@ -66,6 +66,6 @@ def run_game(chess_board):
 
 
 if __name__ == "__main__":
-    chess_board = board.ChessBoard()
+    chess_board = moves.Moves()
     run_game(chess_board)
     pygame.display.quit()
