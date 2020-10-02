@@ -45,7 +45,6 @@ def run_game(chess_board):
                     # append for first and second clicks
                     else:
                         sq_selected = (row, col)
-                        print(sq_selected)
                         player_clicks.append(sq_selected) 
 
                     # after the users second click
@@ -61,9 +60,6 @@ def run_game(chess_board):
                     # Undo when z is pressed
                     if e.key == pygame.K_z:
                         chess_board.move_undo()
-
-                    if e.key == pygame.K_m:
-                        chess_board.print_moves()
 
 
             chess_board.draw_all(screen, sq_selected,

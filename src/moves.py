@@ -25,6 +25,9 @@ class Moves(board.ChessBoard):
         self.log_turn_sequence = []
         self.log_turn_sequence.append(self.turn_sequence)
 
+        self.get_valid_positions()
+
+
     def move_piece(self, player_clicks):
         self.player_clicks = player_clicks
         loc_before = self.player_clicks[0]
@@ -45,6 +48,48 @@ class Moves(board.ChessBoard):
 
             return True
 
+    def is_valid(self):
+        '''
+        Check if the move is valid
+        '''
+        loc_before = self.player_clicks[0]
+        loc_after = self.player_clicks[1]
+
+        flag_move = [list(loc_before), list(loc_after)] in self.moves_ava
+
+        return flag_move
+
+
+    def turn_next(self):
+        self.turn_sequence = self.turn_sequence[1:] + self.turn_sequence[:1]
+        self.log_turn_sequence.append(self.turn_sequence)
+
+
+    def get_valid_positions(self):
+        '''
+        Cleans moves_ava from moves that go off the board
+        '''
+
+        self.valid_positions = np.ones((self.dimension, self.dimension), 
+                                       dtype = np.bool)
+
+        for row in range(self.dimension):
+            for col in range(self.dimension):
+                if ((0 <= row < 3) and
+                    (0 <= col < 3)):
+                    self.valid_positions[row, col] = False
+
+                if ((11 <= row < 14) and
+                    (0 <= col < 3)):
+                    self.valid_positions[row, col] = False
+
+                if ((11 <= row < 14) and
+                    (11 <= col < 14)):
+                    self.valid_positions[row, col] = False
+
+                if ((0 <= row < 3) and
+                    (11 <= col < 14)):
+                    self.valid_positions[row, col] = False
 
     def get_moves(self):
         self.moves_ava = []
@@ -178,6 +223,10 @@ class Moves(board.ChessBoard):
                                 flag_allowed = False
                                 break
 
+                            if not self.valid_positions[idx_after[0], idx_after[1]]:
+                                flag_allowed = False
+                                break
+
                             if self.team[loc_after[0], loc_after[1]]:
                                 flag_allowed = False
                             else:
@@ -185,6 +234,7 @@ class Moves(board.ChessBoard):
                                 if self.opponent[loc_after[0], loc_after[1]]:
                                     flag_allowed = False
                         
+
     def get_moves_bishop(self):
         idx_rook = self.turn_sequence[0] + 'B'
         board_bishops = self.board_turn = np.core.defchararray.find(
@@ -216,12 +266,17 @@ class Moves(board.ChessBoard):
                                 flag_allowed = False
                                 break
 
+                            if not self.valid_positions[idx_after[0], idx_after[1]]:
+                                flag_allowed = False
+                                break
+
                             if self.team[loc_after[0], loc_after[1]]:
                                 flag_allowed = False
                             else:
                                 self.moves_ava.append([loc_before, loc_after])
                                 if self.opponent[loc_after[0], loc_after[1]]:
                                     flag_allowed = False
+
 
     def get_moves_queen(self):
         idx_queen = self.turn_sequence[0] + 'Q'
@@ -258,12 +313,17 @@ class Moves(board.ChessBoard):
                                 flag_allowed = False
                                 break
 
+                            if not self.valid_positions[idx_after[0], idx_after[1]]:
+                                flag_allowed = False
+                                break
+
                             if self.team[loc_after[0], loc_after[1]]:
                                 flag_allowed = False
                             else:
                                 self.moves_ava.append([loc_before, loc_after])
                                 if self.opponent[loc_after[0], loc_after[1]]:
                                     flag_allowed = False
+
 
     def get_moves_king(self):
         idx_king = self.turn_sequence[0] + 'K'
@@ -297,8 +357,12 @@ class Moves(board.ChessBoard):
                                 (0 <= idx_after[1] < self.dimension)):
                             continue
 
+                        if not self.valid_positions[idx_after[0], idx_after[1]]:
+                            continue
+
                         if not self.team[loc_after[0], loc_after[1]]:
                             self.moves_ava.append([loc_before, loc_after])
+
 
     def get_moves_knight(self):
         idx_knights = self.turn_sequence[0] + 'N'
@@ -332,21 +396,17 @@ class Moves(board.ChessBoard):
                                 (0 <= idx_after[1] < self.dimension)):
                             continue
 
+                        if not self.valid_positions[idx_after[0], idx_after[1]]:
+                            continue
+
                         if not self.team[loc_after[0], loc_after[1]]:
                             self.moves_ava.append([loc_before, loc_after])
 
 
-
-
-    def turn_next(self):
-        self.turn_sequence = self.turn_sequence[1:] + self.turn_sequence[:1]
-        self.log_turn_sequence.append(self.turn_sequence)
-
-
-    
     def move_undo(self):
         '''
         Undos moves
+        Not working properly after highlighting!
         '''
 
         if self.log_move:
@@ -363,27 +423,7 @@ class Moves(board.ChessBoard):
             self.board[loc_after] = piece_after
 
 
-    def is_valid(self):
-        '''
-        Check if the move is valid
-        '''
-        loc_before = self.player_clicks[0]
-        loc_after = self.player_clicks[1]
-
-        flag_move = [list(loc_before), list(loc_after)] in self.moves_ava
-
-        return flag_move
-
-
-    def print_moves(self):
-        self.get_moves()
-        print('Start: ', self.turn_sequence[0])
-        for move in self.moves_ava:
-            print(move)
-
-
 if __name__ == "__main__":
-    import ipdb; dbg1 = ipdb.set_trace  # BREAKPOINT
     chess_board = Moves()
     main.run_game(chess_board)
     pygame.display.quit()
