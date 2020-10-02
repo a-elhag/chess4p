@@ -29,13 +29,7 @@ class ChessBoard():
             ['xx', 'xx', 'xx', 'rP', 'rP', 'rP', 'rP', 'rP', 'rP', 'rP', 'rP', 'xx', 'xx', 'xx'],
             ['xx', 'xx', 'xx', 'rR', 'rN', 'rB', 'rQ', 'rK', 'rB', 'rN', 'rR', 'xx', 'xx', 'xx']])
 
-        self.turn_sequence = ['r', 'b', 'y', 'g']
-        self.turn_direction = {
-            "r": [-1, 0],
-            "b": [0, 1],
-            "y": [1, 0],
-            "g": [0, -1]
-        }
+        self.turn_stuff()
 
         self.log_move = []
         self.log_before = []
@@ -50,6 +44,17 @@ class ChessBoard():
         self.bg = "#3C3A36"
 
         self.load_images()
+
+    def turn_stuff(self):
+
+        self.turn_sequence = ['r', 'b', 'y', 'g']
+        self.turn_direction = {
+            "r": [-1, 0],
+            "b": [0, 1],
+            "y": [1, 0],
+            "g": [0, -1]
+        }
+
 
     def load_images(self):
         '''
@@ -155,13 +160,11 @@ class ChessBoard():
 
         flag_turn = self.is_valid_turn(piece_before)
 
-        if piece_id == 'P':
-            flag_move = self.is_valid_pawn()
-        else:
-            flag_move = False
+        self.get_pawn_moves()
+        flag_pawn = [list(loc_before), list(loc_after)] in self.moves_ava
 
-        flag_valid = (flag_turn and flag_move)
-
+        flag_valid = (flag_turn and flag_pawn)
+        
         return flag_valid
 
 
@@ -174,42 +177,62 @@ class ChessBoard():
         else:
             return False
 
+    def get_pawn_moves(self):
+        # Finding the pawn and color
+        idx_pawn = self.turn_sequence[0] + 'P' 
+        A = self.board_turn = np.core.defchararray.find(
+            self.board, idx_pawn)
+        A = (A == 0)
+        idx_add = np.array(self.turn_direction[self.turn_sequence[0]])
 
-    def is_valid_pawn(self):
-        loc_before = self.player_clicks[0]
-        loc_after = self.player_clicks[1]
-        turn_now = self.turn_sequence[0]
+        # Available moves
+        self.moves_ava = []
 
-        # jump is in [x, y]
-        jump = [loc_after[0] - loc_before[0],
-                loc_after[1] - loc_before[1]]
+        for row in range(self.dimension):
+            for col in range(self.dimension):
+                if A[row, col]:
+                    loc_before = [row, col]
+                    idx_next = np.array([row, col])
+                    idx_next = idx_next + idx_add
+                    if self.board[idx_next[0], idx_next[1]] == '--':
+                        loc_after = [idx_next[0], idx_next[1]]
+                        self.moves_ava.append([loc_before, loc_after])
 
-        # Positive if we are allowed to make the move
-        direction = 0 
-        for _ in range(2):
-            direction = direction + jump[_]*self.turn_direction[turn_now][_]
+                        idx_next = idx_next + idx_add
 
-        if direction > 0:
-            flag_direction = True
-        else:
-            flag_direction = False
+                        if ((idx_pawn[0] == "r") and (row == 12) and 
+                            (self.board[idx_next[0], idx_next[1]] == '--')):
+                            loc_after = [idx_next[0], idx_next[1]]
+                            self.moves_ava.append([loc_before, loc_after])
 
-        # Basic forward movement of the pawn
-        flag_rook = False
-        for axis in jump:
-            if axis == 0:
-                flag_rook = True
+                        if ((idx_pawn[0] == "b") and (col == 1) and 
+                            (self.board[idx_next[0], idx_next[1]] == '--')):
+                            loc_after = [idx_next[0], idx_next[1]]
+                            self.moves_ava.append([loc_before, loc_after])
 
-        print(loc_before)
+                        if ((idx_pawn[0] == "y") and (row == 1) and 
+                            (self.board[idx_next[0], idx_next[1]] == '--')):
+                            loc_after = [idx_next[0], idx_next[1]]
+                            self.moves_ava.append([loc_before, loc_after])
 
-        flag_pawn = (flag_direction and flag_rook)
-        return flag_pawn
+                        if ((idx_pawn[0] == "g") and (col == 12) and 
+                            (self.board[idx_next[0], idx_next[1]] == '--')):
+                            loc_after = [idx_next[0], idx_next[1]]
+                            self.moves_ava.append([loc_before, loc_after])
+
+
+    def print_moves(self):
+        self.get_pawn_moves()
+        print('Start')
+        for move in self.moves_ava:
+            print(move)
+        print('Finish')
 
 
 if __name__ == "__main__":
+    import ipdb; dbg1 = ipdb.set_trace  # BREAKPOINT
     chess_board = ChessBoard()
+    chess_board.turn_direction
     main.run_game(chess_board)
     pygame.display.quit()
-
-
 

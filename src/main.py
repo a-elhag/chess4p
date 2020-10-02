@@ -55,6 +55,9 @@ def run_game(chess_board):
                     if e.key == pygame.K_z:
                         chess_board.move_undo()
 
+                    if e.key == pygame.K_m:
+                        chess_board.print_moves()
+
 
             chess_board.draw_board(screen)
             chess_board.draw_pieces(screen)
