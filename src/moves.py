@@ -32,6 +32,8 @@ class Moves(board.ChessBoard):
         self.get_opponents()
         self.get_moves_pawn()
         self.get_moves_rook()
+        self.get_moves_bishop()
+        self.get_moves_queen()
 
 
     def get_team(self):
@@ -161,6 +163,85 @@ class Moves(board.ChessBoard):
                                 if self.opponent[loc_after[0], loc_after[1]]:
                                     flag_allowed = False
                         
+    def get_moves_bishop(self):
+        idx_rook = self.turn_sequence[0] + 'B'
+        board_bishops = self.board_turn = np.core.defchararray.find(
+            self.board, idx_rook)
+        board_bishops = (board_bishops == 0)
+
+        for row in range(self.dimension):
+            for col in range(self.dimension):
+                loc_before = [row, col]
+                idx_before = np.array(loc_before)
+                idx_movement_bishop = np.array([
+                    [-1, -1], # up - left diag
+                    [-1, +1], # up - right diag
+                    [+1, +1], # down - right diag
+                    [+1, -1], # down - left diag
+                ])
+
+                if board_bishops[row, col]:
+                    for movement in range(4):
+                        idx_after = np.copy(loc_before)
+                        flag_allowed = True
+                        while(flag_allowed):
+                            idx_after = (idx_after +
+                                         idx_movement_bishop[movement, :])
+                            loc_after = [idx_after[0], idx_after[1]]
+
+                            if not ((0 <= idx_after[0] < self.dimension) and
+                                    (0 <= idx_after[1] < self.dimension)):
+                                flag_allowed = False
+                                break
+
+                            if self.team[loc_after[0], loc_after[1]]:
+                                flag_allowed = False
+                            else:
+                                self.moves_ava.append([loc_before, loc_after])
+                                if self.opponent[loc_after[0], loc_after[1]]:
+                                    flag_allowed = False
+
+    def get_moves_queen(self):
+        idx_queen = self.turn_sequence[0] + 'Q'
+        board_queens = self.board_turn = np.core.defchararray.find(
+            self.board, idx_queen)
+        board_queens = (board_queens == 0)
+
+        for row in range(self.dimension):
+            for col in range(self.dimension):
+                loc_before = [row, col]
+                idx_before = np.array(loc_before)
+                idx_movement_queen = np.array([
+                    [-1, 0], #up
+                    [1, 0], #down
+                    [0, 1], # right
+                    [0, -1], #left
+                    [-1, -1], # up - left diag
+                    [-1, +1], # up - right diag
+                    [+1, +1], # down - right diag
+                    [+1, -1], # down - left diag
+                ])
+
+                if board_queens[row, col]:
+                    for movement in range(8):
+                        idx_after = np.copy(loc_before)
+                        flag_allowed = True
+                        while(flag_allowed):
+                            idx_after = (idx_after +
+                                         idx_movement_queen[movement, :])
+                            loc_after = [idx_after[0], idx_after[1]]
+
+                            if not ((0 <= idx_after[0] < self.dimension) and
+                                    (0 <= idx_after[1] < self.dimension)):
+                                flag_allowed = False
+                                break
+
+                            if self.team[loc_after[0], loc_after[1]]:
+                                flag_allowed = False
+                            else:
+                                self.moves_ava.append([loc_before, loc_after])
+                                if self.opponent[loc_after[0], loc_after[1]]:
+                                    flag_allowed = False
 
     
 
